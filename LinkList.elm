@@ -30,7 +30,7 @@ init : Model
 init =
   { links = []
   , nextID = 0
-  , nextLink = LinkInsert.init
+  , nextLink = Link.init
   }
   
   
@@ -48,11 +48,8 @@ update msg model =
       let
         newLink =
           ( model.nextID, link )
-        newLinks =
-          model.links ++ [ newLink ]
-      
       in
-        Model newLinks (model.nextID + 1)
+        { model | links = newLink :: model.links }
     Change insertMsg ->
       { model | nextLink = LinkInsert.update insertMsg model.nextLink }
         
@@ -69,7 +66,8 @@ view model =
     
   in 
     div []
-      [ Html.ul [] items 
+      [ LinkInsert.view
+      , Html.ul [] items 
       ]
     
   
