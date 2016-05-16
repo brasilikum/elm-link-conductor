@@ -1,70 +1,83 @@
 module Main exposing (..)
 
-import Link
-import LinkInsert
+import LinkForm
+import LinkTypes exposing (Link)
 import Html exposing (..)
 import Html.App as App
-import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Html.Attributes exposing (style)
 
 
 main =
-  App.beginnerProgram
-    { model = init
-    , update = update
-    , view = view
-    }
+    App.beginnerProgram
+        { model = init
+        , update = update
+        , view = view
+        }
+
 
 
 -- MODEL
 
+
 type alias Model =
-  { links : List Link.Model
-  , nextID: ID
-  , nextLink: Link.Model 
-  }
-  
-type alias ID = Int
+    { links : List Link
+    , nextID : ID
+    , nextLink : LinkForm.Model
+    }
+
+
+type alias ID =
+    Int
+
 
 init : Model
 init =
-  { links = []
-  , nextID = 0
-  , nextLink = Link.init
-  }
-  
-  
+    { links = []
+    , nextID = 0
+    , nextLink = LinkForm.init
+    }
+
+
+
 -- UPDATE
 
-type Msg
-  = Add
-  | Change LinkInsert.Msg
 
-  
+type Msg
+    = Add
+    | ChangeNextLink LinkForm.Msg
+
+
 update : Msg -> Model -> Model
 update msg model =
-  case msg of
-    Add ->
-      { model | links = model.nextLink :: model.links, nextLink = LinkInsert.update LinkInsert.Reset model.nextLink }
-    Change insertMsg ->
-      { model | nextLink = LinkInsert.update insertMsg model.nextLink }
-        
+    case msg of
+        Add ->
+            { model | links = model.nextLink :: model.links, nextLink = LinkForm.init }
+
+        ChangeNextLink linkMsg ->
+            { model | nextLink = LinkForm.update linkMsg model.nextLink }
+
+
+
 -- VIEW
+
 
 view : Model -> Html Msg
 view model =
-  let  
-    linkToItem link =
-      Html.li []
-        [ text link.url ]
-        
-    items = List.map linkToItem model.links
-    
-  in 
-    div []
-      [ App.map Change ( LinkInsert.view model.nextLink )
-      , button [ onClick Add ] [ text "Add" ]
-      , Html.ul [] items 
-      ]
-    
-  
+    let
+        items =
+            List.map linkItemView model.links
+    in
+        div []
+            [ App.map ChangeNextLink (LinkForm.view model.nextLink)
+            , button [ onClick Add ] [ text "Add" ]
+            , Html.ul [] items
+            ]
+
+
+linkItemView : Link -> Html Msg
+linkItemView model =
+    div [ style [ ( "background-color", "grey" ) ] ]
+        [ h2 [] [ text model.title ]
+        , div [] [ text model.url ]
+        ]
