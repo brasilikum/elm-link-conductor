@@ -12,6 +12,7 @@ import Html.Events exposing (..)
 type Msg
   = Url String
   | Title String
+  | Reset
   
 
 update : Msg -> Link.Model -> Link.Model
@@ -23,12 +24,15 @@ update action model =
     Title title ->
       { model | title = title }
       
-
+    Reset ->
+      Link.init
+      
+      
 -- VIEW
 
 view : Link.Model -> Html Msg
 view model =
   div []
-    [ input [ type' "text", placeholder "URL", onInput Url ] []
-    , input [ type' "text", placeholder "Title", onInput Title ] [] 
+    [ input [ placeholder "URL", onInput Url, content model.url] []
+    , input [ placeholder "Title", onInput Title, content model.title ] [] 
     ]

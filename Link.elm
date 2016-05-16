@@ -1,5 +1,6 @@
 module Link exposing (..)
 
+import Tag
 import Html exposing (div, h2, text, input, Html)
 import Html.Attributes exposing (placeholder, style, type')
 
@@ -9,12 +10,14 @@ import Html.Attributes exposing (placeholder, style, type')
 type alias Model =
     { url : String
     , title: String
+    , tags: List Tag.Tag
     }
     
 init : Model
 init =
     { url = ""
-    , title = ""}
+    , title = ""
+    , tags = [] }
     
     
 -- UPDATE
@@ -34,7 +37,7 @@ update msg model =
       
 -- VIEW
 
-view : Model -> Html Msg
+view : Model -> Html msg
 view model =
   div [ style [("background-color", "grey")] ] 
     [ h2 [] [ text model.title ]

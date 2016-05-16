@@ -19,7 +19,7 @@ main =
 -- MODEL
 
 type alias Model =
-  { links : List (ID, Link.Model )
+  { links : List Link.Model
   , nextID: ID
   , nextLink: Link.Model 
   }
@@ -37,19 +37,15 @@ init =
 -- UPDATE
 
 type Msg
-  = Add Link.Model
+  = Add
   | Change LinkInsert.Msg
 
   
 update : Msg -> Model -> Model
 update msg model =
   case msg of
-    Add link ->
-      let
-        newLink =
-          ( model.nextID, link )
-      in
-        { model | links = newLink :: model.links }
+    Add ->
+      { model | links = model.nextLink :: model.links, nextLink = LinkInsert.update LinkInsert.Reset model.nextLink }
     Change insertMsg ->
       { model | nextLink = LinkInsert.update insertMsg model.nextLink }
         
@@ -58,7 +54,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
   let  
-    linkToItem (id, link) =
+    linkToItem link =
       Html.li []
         [ text link.url ]
         
@@ -66,7 +62,8 @@ view model =
     
   in 
     div []
-      [ LinkInsert.view
+      [ App.map Change ( LinkInsert.view model.nextLink )
+      , button [ onClick Add ] [ text "Add" ]
       , Html.ul [] items 
       ]
     

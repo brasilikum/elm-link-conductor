@@ -7163,6 +7163,11 @@ var _elm_lang$html$Html_Events$Options = F2(
 	function (a, b) {
 		return {stopPropagation: a, preventDefault: b};
 	});
+var _user$project$Tag$init = {name: '', color: 'red'};
+var _user$project$Tag$Tag = F2(
+	function (a, b) {
+		return {name: a, color: b};
+	});
 var _user$project$Link$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -7207,10 +7212,15 @@ var _user$project$Link$update = F2(
 				{title: _p0._0});
 		}
 	});
-var _user$project$Link$init = {url: '', title: ''};
-var _user$project$Link$Model = F2(
-	function (a, b) {
-		return {url: a, title: b};
+var _user$project$Link$init = {
+	url: '',
+	title: '',
+	tags: _elm_lang$core$Native_List.fromArray(
+		[])
+};
+var _user$project$Link$Model = F3(
+	function (a, b, c) {
+		return {url: a, title: b, tags: c};
 	});
 var _user$project$Link$Title = function (a) {
 	return {ctor: 'Title', _0: a};
@@ -7221,16 +7231,20 @@ var _user$project$Link$Link = function (a) {
 var _user$project$LinkInsert$update = F2(
 	function (action, model) {
 		var _p0 = action;
-		if (_p0.ctor === 'Url') {
-			return _elm_lang$core$Native_Utils.update(
-				model,
-				{url: _p0._0});
-		} else {
-			return _elm_lang$core$Native_Utils.update(
-				model,
-				{title: _p0._0});
+		switch (_p0.ctor) {
+			case 'Url':
+				return _elm_lang$core$Native_Utils.update(
+					model,
+					{url: _p0._0});
+			case 'Title':
+				return _elm_lang$core$Native_Utils.update(
+					model,
+					{title: _p0._0});
+			default:
+				return _user$project$Link$init;
 		}
 	});
+var _user$project$LinkInsert$Reset = {ctor: 'Reset'};
 var _user$project$LinkInsert$Title = function (a) {
 	return {ctor: 'Title', _0: a};
 };
@@ -7248,9 +7262,9 @@ var _user$project$LinkInsert$view = function (model) {
 				_elm_lang$html$Html$input,
 				_elm_lang$core$Native_List.fromArray(
 					[
-						_elm_lang$html$Html_Attributes$type$('text'),
 						_elm_lang$html$Html_Attributes$placeholder('URL'),
-						_elm_lang$html$Html_Events$onInput(_user$project$LinkInsert$Url)
+						_elm_lang$html$Html_Events$onInput(_user$project$LinkInsert$Url),
+						_elm_lang$html$Html_Attributes$content(model.url)
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[])),
@@ -7258,24 +7272,55 @@ var _user$project$LinkInsert$view = function (model) {
 				_elm_lang$html$Html$input,
 				_elm_lang$core$Native_List.fromArray(
 					[
-						_elm_lang$html$Html_Attributes$type$('text'),
 						_elm_lang$html$Html_Attributes$placeholder('Title'),
-						_elm_lang$html$Html_Events$onInput(_user$project$LinkInsert$Title)
+						_elm_lang$html$Html_Events$onInput(_user$project$LinkInsert$Title),
+						_elm_lang$html$Html_Attributes$content(model.title)
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[]))
 			]));
 };
+var _user$project$Main$update = F2(
+	function (msg, model) {
+		var _p0 = msg;
+		if (_p0.ctor === 'Add') {
+			return _elm_lang$core$Native_Utils.update(
+				model,
+				{
+					links: A2(_elm_lang$core$List_ops['::'], model.nextLink, model.links),
+					nextLink: A2(_user$project$LinkInsert$update, _user$project$LinkInsert$Reset, model.nextLink)
+				});
+		} else {
+			return _elm_lang$core$Native_Utils.update(
+				model,
+				{
+					nextLink: A2(_user$project$LinkInsert$update, _p0._0, model.nextLink)
+				});
+		}
+	});
+var _user$project$Main$init = {
+	links: _elm_lang$core$Native_List.fromArray(
+		[]),
+	nextID: 0,
+	nextLink: _user$project$Link$init
+};
+var _user$project$Main$Model = F3(
+	function (a, b, c) {
+		return {links: a, nextID: b, nextLink: c};
+	});
+var _user$project$Main$Change = function (a) {
+	return {ctor: 'Change', _0: a};
+};
+var _user$project$Main$Add = {ctor: 'Add'};
 var _user$project$Main$view = function (model) {
-	var linkToItem = function (_p0) {
-		var _p1 = _p0;
+	var linkToItem = function (link) {
 		return A2(
 			_elm_lang$html$Html$li,
 			_elm_lang$core$Native_List.fromArray(
 				[]),
 			_elm_lang$core$Native_List.fromArray(
 				[
-					_elm_lang$html$Html$text(_p1._1.url)
+					_elm_lang$html$Html$text(link.url)
 				]));
 	};
 	var items = A2(_elm_lang$core$List$map, linkToItem, model.links);
@@ -7286,49 +7331,29 @@ var _user$project$Main$view = function (model) {
 		_elm_lang$core$Native_List.fromArray(
 			[
 				A2(
+				_elm_lang$html$Html_App$map,
+				_user$project$Main$Change,
+				_user$project$LinkInsert$view(model.nextLink)),
+				A2(
+				_elm_lang$html$Html$button,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Events$onClick(_user$project$Main$Add)
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text('Add')
+					])),
+				A2(
 				_elm_lang$html$Html$ul,
 				_elm_lang$core$Native_List.fromArray(
 					[]),
 				items)
 			]));
 };
-var _user$project$Main$update = F2(
-	function (msg, model) {
-		var _p2 = msg;
-		if (_p2.ctor === 'Add') {
-			var newLink = {ctor: '_Tuple2', _0: model.nextID, _1: _p2._0};
-			return _elm_lang$core$Native_Utils.update(
-				model,
-				{
-					links: A2(_elm_lang$core$List_ops['::'], newLink, model.links)
-				});
-		} else {
-			return _elm_lang$core$Native_Utils.update(
-				model,
-				{
-					nextLink: A2(_user$project$LinkInsert$update, _p2._0, model.nextLink)
-				});
-		}
-	});
-var _user$project$Main$init = {
-	links: _elm_lang$core$Native_List.fromArray(
-		[]),
-	nextID: 0,
-	nextLink: _user$project$Link$init
-};
 var _user$project$Main$main = {
 	main: _elm_lang$html$Html_App$beginnerProgram(
 		{model: _user$project$Main$init, update: _user$project$Main$update, view: _user$project$Main$view})
-};
-var _user$project$Main$Model = F3(
-	function (a, b, c) {
-		return {links: a, nextID: b, nextLink: c};
-	});
-var _user$project$Main$Change = function (a) {
-	return {ctor: 'Change', _0: a};
-};
-var _user$project$Main$Add = function (a) {
-	return {ctor: 'Add', _0: a};
 };
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
