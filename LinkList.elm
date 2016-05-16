@@ -1,10 +1,11 @@
 module Main exposing (..)
 
-import Link
-import LinkInsert
+import LinkForm
+import LinkTypes exposing (Link)
 import Html exposing (..)
 import Html.App as App
 import Html.Events exposing (..)
+import Html.Attributes exposing (style)
 
 
 main =
@@ -20,9 +21,9 @@ main =
 
 
 type alias Model =
-    { links : List Link.Model
+    { links : List Link
     , nextID : ID
-    , nextLink : Link.Model
+    , nextLink : LinkForm.Model
     }
 
 
@@ -34,7 +35,7 @@ init : Model
 init =
     { links = []
     , nextID = 0
-    , nextLink = Link.init
+    , nextLink = LinkForm.init
     }
 
 
@@ -44,17 +45,17 @@ init =
 
 type Msg
     = Add
-    | Change LinkInsert.Msg
+    | ChangeNextLink LinkForm.Msg
 
 
 update : Msg -> Model -> Model
 update msg model =
     case msg of
         Add ->
-            { model | links = model.nextLink :: model.links, nextLink = LinkInsert.update LinkInsert.Reset model.nextLink }
+            { model | links = model.nextLink :: model.links, nextLink = LinkForm.init }
 
-        Change insertMsg ->
-            { model | nextLink = LinkInsert.update insertMsg model.nextLink }
+        ChangeNextLink linkMsg ->
+            { model | nextLink = LinkForm.update linkMsg model.nextLink }
 
 
 
@@ -64,15 +65,19 @@ update msg model =
 view : Model -> Html Msg
 view model =
     let
-        linkToItem link =
-            Html.li []
-                [ text link.url ]
-
         items =
-            List.map linkToItem model.links
+            List.map linkItemView model.links
     in
         div []
-            [ App.map Change (LinkInsert.view model.nextLink)
+            [ App.map ChangeNextLink (LinkForm.view model.nextLink)
             , button [ onClick Add ] [ text "Add" ]
             , Html.ul [] items
             ]
+
+
+linkItemView : Link -> Html Msg
+linkItemView model =
+    div [ style [ ( "background-color", "grey" ) ] ]
+        [ h2 [] [ text model.title ]
+        , div [] [ text model.url ]
+        ]
